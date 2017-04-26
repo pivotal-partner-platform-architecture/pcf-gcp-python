@@ -3,6 +3,7 @@ import os
 from operator import itemgetter
 import base64
 
+from google.cloud import storage
 from google.cloud import language
 from google.cloud import vision
 from google.cloud.vision.image import Image
@@ -27,7 +28,7 @@ class PcfGcp:
   def __init__(self):
     self.VCAP_SERVICES = None
     self.clients = {
-      'google-storage': None
+      'storage': None
       , 'google-bigquery': None
       , 'google-bigtable': None
       , 'google-cloudsql': None
@@ -102,7 +103,13 @@ class PcfGcp:
     return self.clients['vision']
 
   def getStorage(self):
-    pass
+    if self.clients['storage'] is None:
+      self.clients['storage'] = storage.Client(project=self.projectId,
+        credentials=self.get_google_cloud_credentials('google-storage'))
+    return self.clients['storage']
+
+  def getBucketName(self):
+    return self.bucketName
 
   def getBigQuery(self):
     pass
