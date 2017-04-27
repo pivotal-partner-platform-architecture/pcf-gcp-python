@@ -2,6 +2,7 @@ import json
 import os
 from operator import itemgetter
 import base64
+import tempfile
 
 from google.cloud import storage
 from google.cloud import language
@@ -72,8 +73,16 @@ class PcfGcp:
     self.credentials = Credentials.from_service_account_info(pkey_dict)
     # Get additional fields
     self.projectId = service_info['credentials']['ProjectId']
+    print 'ProjectID: %s' % self.projectId
     if 'bucket_name' in service_info['credentials']:
       self.bucketName = service_info['credentials']['bucket_name']
+    # Set the environment variable for GCP (this was the only way I could get Storage to work)
+    credFile = tempfile.gettempdir() + '/' + 'GCP_credentials.json'
+    with open(credFile, 'w') as out:
+      out.write(pkey_data)
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credFile
+    print 'Wrote credentials to %s' % credFile
+    print 'Set env GOOGLE_APPLICATION_CREDENTIALS to %s' % os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
     return self.credentials
 
   """This can't be generic since the Client varies across services"""
@@ -104,8 +113,8 @@ class PcfGcp:
 
   def getStorage(self):
     if self.clients['storage'] is None:
-      self.clients['storage'] = storage.Client(project=self.projectId,
-        credentials=self.get_google_cloud_credentials('google-storage'))
+      self.get_google_cloud_credentials('google-storage')
+      self.clients['storage'] = storage.Client(self.projectId)
     return self.clients['storage']
 
   def getBucketName(self):
