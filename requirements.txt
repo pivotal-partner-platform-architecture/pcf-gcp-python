@@ -1,3 +1,0 @@
-google-cloud-language
-google-cloud-vision
-google-cloud-storage==1.0.0
