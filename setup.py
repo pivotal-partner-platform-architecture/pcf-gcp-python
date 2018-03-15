@@ -10,7 +10,7 @@ setup(
   license='LICENSE.txt',
   packages=['pcfgcp'],
   install_requires=[
-    "google-auth == 1.0.2",
+    "google-auth == 1.2.0",
   ],
 )
 
